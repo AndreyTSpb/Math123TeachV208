@@ -1,6 +1,7 @@
 package potaskun.enot.math123teachv20;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
@@ -48,6 +49,7 @@ public class SelectGroupActivity extends AppCompatActivity {
     public int idGroup;
     public int idLess;
     public String nameGroup;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,13 +154,13 @@ public class SelectGroupActivity extends AppCompatActivity {
      * @param id
      */
     public void goToGroup(String name, int id) {
-        //Intent intent = new Intent(this, StudentsInGroupActivity.class);
-        //intent.putExtra("NameGroup", name);
-        //intent.putExtra("idGroup", ""+id);
-        //startActivity(intent);
-        idGroup = id;
-        nameGroup = name;
-        new RequestTask().execute("https://math123.ru/rest/index.php");
+        Intent intent = new Intent(this, StudentsInGroupActivity.class);
+        intent.putExtra("NameGroup", name);
+        intent.putExtra("idGroup", ""+id);
+        startActivity(intent);
+        //idGroup = id;
+        //nameGroup = name;
+        //new RequestTask().execute("https://math123.ru/rest/index.php");
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -268,6 +270,22 @@ public class SelectGroupActivity extends AppCompatActivity {
             }
             return null;
         }
+        @Override
+        protected void onPostExecute(String result) {
 
+            dialog.dismiss();
+            super.onPostExecute(result);
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            dialog = new ProgressDialog(SelectGroupActivity.this);
+            dialog.setMessage("Загружаюсь...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+            super.onPreExecute();
+        }
     }
 }

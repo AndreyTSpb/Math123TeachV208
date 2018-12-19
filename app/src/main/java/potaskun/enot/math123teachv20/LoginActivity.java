@@ -91,6 +91,22 @@ public class LoginActivity extends AppCompatActivity{
             }
             return null;
         }
+        @Override
+        protected void onPostExecute(String result) {
 
+            dialog.dismiss();
+            super.onPostExecute(result);
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            dialog = new ProgressDialog(LoginActivity.this);
+            dialog.setMessage("Загружаюсь...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+            super.onPreExecute();
+        }
     }
 }

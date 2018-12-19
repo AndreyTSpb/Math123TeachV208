@@ -54,8 +54,6 @@ public class StudentsInGroupActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
-
-
         Intent intent = getIntent();
         nameGroup = intent.getStringExtra("NameGroup").toString();
         //idGroup = Integer.parseInt(intent.getStringExtra("idGroup").toString());
