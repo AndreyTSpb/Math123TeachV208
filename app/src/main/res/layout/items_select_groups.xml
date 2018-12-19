@@ -33,5 +33,14 @@
         android:clickable="false"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:textSize="10sp" />
+        android:textSize="6sp" />
+
+    <TextView
+        android:id="@+id/idLess"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/buttonQr"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:textSize="6sp" />
 </RelativeLayout>

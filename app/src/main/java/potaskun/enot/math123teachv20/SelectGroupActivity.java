@@ -2,6 +2,7 @@ package potaskun.enot.math123teachv20;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,16 +14,27 @@ import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 public class SelectGroupActivity extends AppCompatActivity {
     private TextView textDate;
@@ -33,6 +45,9 @@ public class SelectGroupActivity extends AppCompatActivity {
     public static String JsonURL;
     private String error;
     private JSONArray arrGroups;
+    public int idGroup;
+    public int idLess;
+    public String nameGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +100,11 @@ public class SelectGroupActivity extends AppCompatActivity {
         assert extras != null;
         String json = extras.getString(JsonURL);
         //передаем в метод парсинга
-        if(!JSONURL(json)){
+        if (!JSONURL(json)) {
             //String error = "Произошла ошибка";
             Intent intent = new Intent(this, LoginActivity.class);
             intent.putExtra("error", error);
-            System.out.println("test-error"+error);
+            System.out.println("test-error" + error);
             startActivity(intent);
         }
 
@@ -98,9 +113,9 @@ public class SelectGroupActivity extends AppCompatActivity {
          */
 
         selectGroups = new ArrayList<>();
-        for(int i=0; i<arrGroups.length(); i++){
+        for (int i = 0; i < arrGroups.length(); i++) {
             try {
-                selectGroups.add(new SelectGroups(arrGroups.getJSONObject(i).getString("nameGroup"), arrGroups.getJSONObject(i).getString("idGroup")));
+                selectGroups.add(new SelectGroups(arrGroups.getJSONObject(i).getString("nameGroup"), arrGroups.getJSONObject(i).getString("idGroup") , arrGroups.getJSONObject(i).getString("id_less")));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -110,6 +125,7 @@ public class SelectGroupActivity extends AppCompatActivity {
         adapter = new SelectGroupsAdapter(this, R.layout.items_select_groups, selectGroups);
         listGroup.setAdapter(adapter);
     }
+
     private void setTextView() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
         Date d = new Date(calendar.getTimeInMillis());
@@ -118,10 +134,11 @@ public class SelectGroupActivity extends AppCompatActivity {
 
     /**
      * Переход в QR код сканер
+     *
      * @param name
      * @param id
      */
-    public void goQrCode(String name, int id){
+    public void goQrCode(String name, int id) {
         Intent intent = new Intent(this, QrCodeScannerActivity.class);
         intent.putExtra("NameGroup", name);
         intent.putExtra("idGroup", id);
@@ -130,14 +147,18 @@ public class SelectGroupActivity extends AppCompatActivity {
 
     /**
      * Переход в список учеников группы
+     *
      * @param name
      * @param id
      */
-    public void goToGroup(String name, int id){
-        Intent intent = new Intent(this, StudentsInGroupActivity.class);
-        intent.putExtra("NameGroup", name);
+    public void goToGroup(String name, int id) {
+        //Intent intent = new Intent(this, StudentsInGroupActivity.class);
+        //intent.putExtra("NameGroup", name);
         //intent.putExtra("idGroup", ""+id);
-        startActivity(intent);
+        //startActivity(intent);
+        idGroup = id;
+        nameGroup = name;
+        new RequestTask().execute("https://math123.ru/rest/index.php");
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -148,6 +169,7 @@ public class SelectGroupActivity extends AppCompatActivity {
     /**
      * Метод для кнопки возврата
      * возврата к предыдущему экрану, в котором мы просто завершаем работу текущего:
+     *
      * @param item
      * @return
      */
@@ -157,8 +179,7 @@ public class SelectGroupActivity extends AppCompatActivity {
             case android.R.id.home:
                 this.finish();
                 return true;
-            case R.id.test:
-            {
+            case R.id.test: {
                 Intent intent = new Intent(this, TestActivity.class);
                 startActivity(intent);
             }
@@ -169,34 +190,36 @@ public class SelectGroupActivity extends AppCompatActivity {
 
     /**
      * Обработка ответа сервера
-     * @param result */
-    public boolean JSONURL(String result){
-        try{
-            System.out.println("json_test"+ result);
+     *
+     * @param result
+     */
+    public boolean JSONURL(String result) {
+        try {
+            System.out.println("json_test" + result);
             //создали читателя json объектов и отдали ему строку - result
-            JSONObject json  = new JSONObject(result);
+            JSONObject json = new JSONObject(result);
             //дальше находим вход в наш json им является ключевое слово data
             JSONArray urls = json.getJSONArray("data");
-            System.out.println("test-g"+urls);
+            System.out.println("test-g" + urls);
             /*Проверяем есть ли данные*/
-            System.out.println("test-mass"+urls.getJSONObject(0).getString("error"));
-            if(urls.getJSONObject(0).getString("error").equals("FALSE")) {
+            System.out.println("test-mass" + urls.getJSONObject(0).getString("error"));
+            if (urls.getJSONObject(0).getString("error").equals("FALSE")) {
 
-                Global.ID_TEACH   = urls.getJSONObject(1).getInt("idTeach");
+                Global.ID_TEACH = urls.getJSONObject(1).getInt("idTeach");
                 Global.NAME_TEACH = urls.getJSONObject(1).getString("nameTeach");
-                Global.HESH_KEY   = urls.getJSONObject(1).getString("heshKey");
+                Global.HESH_KEY = urls.getJSONObject(1).getString("heshKey");
                 /*
                  * [{"idGroup":"785","nameGroup":"ММ3-Лимпик-2 (Чт-17:55)","subject":"1","id_less":"109551"},]
                  */
                 arrGroups = urls.getJSONObject(1).getJSONArray("groups");
                 System.out.println("eror-arr" + arrGroups);
                 return true;
-            }else{
-                System.out.print("test-err"+urls.getJSONObject(1).getString("errorText"));
+            } else {
+                System.out.print("test-err" + urls.getJSONObject(1).getString("errorText"));
                 error = urls.getJSONObject(1).getString("errorText");
                 Intent intent = new Intent(this, LoginActivity.class);
                 intent.putExtra("error", error);
-                System.out.println("test-error"+error);
+                System.out.println("test-error" + error);
                 startActivity(intent);
                 return false;
             }
@@ -205,5 +228,46 @@ public class SelectGroupActivity extends AppCompatActivity {
             Log.e("log_tag", "Error parsing data " + e.toString());
         }
         return false;
+    }
+
+    /**
+     * Создаем запрос на получение списка учеников
+     */
+    class RequestTask extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... param) {
+            try {
+                //создаем запрос на сервер
+                DefaultHttpClient hc = new DefaultHttpClient();
+                ResponseHandler<String> res = new BasicResponseHandler();
+                //он у нас будет посылать post запрос
+                HttpPost postMethod = new HttpPost(param[0]);
+                //будем передавать два параметра
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                //передаем параметры из наших текстбоксов
+                //лоигн
+                nameValuePairs.add(new BasicNameValuePair("getGroupUsers", ""+idGroup));
+                //пароль
+                nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
+                nameValuePairs.add(new BasicNameValuePair("id_less", ""+idLess));
+                //собераем их вместе и посылаем на сервер
+                postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                //получаем ответ от сервера
+                String response = hc.execute(postMethod, res);
+                //посылаем на вторую активность полученные параметры
+                Intent intent = new Intent(SelectGroupActivity.this, StudentsInGroupActivity.class);
+                //то что куда мы будем передавать и что, putExtra(куда, что);
+                intent.putExtra(StudentsInGroupActivity.JsonURL, response);
+                startActivity(intent);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
     }
 }

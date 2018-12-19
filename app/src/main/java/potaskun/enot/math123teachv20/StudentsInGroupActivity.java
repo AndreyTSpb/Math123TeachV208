@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class StudentsInGroupActivity extends AppCompatActivity {
 
@@ -21,6 +22,9 @@ public class StudentsInGroupActivity extends AppCompatActivity {
     private int idGroup;
     private ArrayList<SelectStudents> selectStudents;
     private SelectStudentsAdapter adapter;
+    public HashMap<String, Object> hm;
+    public static String JsonURL;
+    private String error;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +37,25 @@ public class StudentsInGroupActivity extends AppCompatActivity {
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         /*Получаем переданные данные*/
+        /**
+         * Обработка ответа от сервера
+         */
+        //принимаем параметр который мы послылали в manActivity
+        Bundle extras = getIntent().getExtras();
+        //превращаем в тип стринг для парсинга
+        assert extras != null;
+        String json = extras.getString(JsonURL);
+        //передаем в метод парсинга
+        if (!JSONURL(json)) {
+            //String error = "Произошла ошибка";
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra("error", error);
+            System.out.println("test-error" + error);
+            startActivity(intent);
+        }
+
+
+
         Intent intent = getIntent();
         nameGroup = intent.getStringExtra("NameGroup").toString();
         //idGroup = Integer.parseInt(intent.getStringExtra("idGroup").toString());
