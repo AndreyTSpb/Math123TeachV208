@@ -27,6 +27,7 @@ public class SelectGroupsAdapter extends ArrayAdapter<SelectGroups> {
     public HashMap<String, Object> hm;
     public static String JsonURL;
 
+
     public SelectGroupsAdapter(@NonNull Context context, int resource, List<SelectGroups> selectGroups) {
         super(context, resource, selectGroups);
         this.selectGroups = selectGroups;
@@ -59,7 +60,8 @@ public class SelectGroupsAdapter extends ArrayAdapter<SelectGroups> {
                 if(mContext instanceof SelectGroupActivity){
                     String name = sg.getName();
                     int id = sg.getId();
-                    ((SelectGroupActivity)mContext).goQrCode(name, id);
+                    int idLess = sg.getIdLess();
+                    ((SelectGroupActivity)mContext).goQrCode(name, id, idLess);
                 }
             }
         });
@@ -70,7 +72,8 @@ public class SelectGroupsAdapter extends ArrayAdapter<SelectGroups> {
                 if(mContext instanceof SelectGroupActivity){
                     String name = sg.getName();
                     int id = sg.getId();
-                    ((SelectGroupActivity)mContext).goToGroup(name, id);
+                    int idLess = sg.getIdLess();
+                    ((SelectGroupActivity)mContext).goToGroup(name, id, idLess);
                 }
             }
         });

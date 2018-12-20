@@ -45,6 +45,8 @@ public class LoginActivity extends AppCompatActivity{
             public void onClick(View view) {
                 login = findViewById(R.id.phone);
                 pass = findViewById(R.id.pass);
+                Global.LOGIN = login.getText().toString();
+                Global.PASS  = pass.getText().toString();
                 new RequestTask().execute("https://math123.ru/rest/index.php");
             }
         });

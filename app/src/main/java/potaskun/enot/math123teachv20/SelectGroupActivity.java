@@ -103,7 +103,7 @@ public class SelectGroupActivity extends AppCompatActivity {
         String json = extras.getString(JsonURL);
         //передаем в метод парсинга
         if (!JSONURL(json)) {
-            //String error = "Произошла ошибка";
+            String error = "Произошла ошибка json-null";
             Intent intent = new Intent(this, LoginActivity.class);
             intent.putExtra("error", error);
             System.out.println("test-error" + error);
@@ -140,10 +140,11 @@ public class SelectGroupActivity extends AppCompatActivity {
      * @param name
      * @param id
      */
-    public void goQrCode(String name, int id) {
+    public void goQrCode(String name, int id, int idLess) {
         Intent intent = new Intent(this, QrCodeScannerActivity.class);
         intent.putExtra("NameGroup", name);
         intent.putExtra("idGroup", id);
+        intent.putExtra("idLess", idLess);
         startActivity(intent);
     }
 
@@ -153,14 +154,15 @@ public class SelectGroupActivity extends AppCompatActivity {
      * @param name
      * @param id
      */
-    public void goToGroup(String name, int id) {
-        Intent intent = new Intent(this, StudentsInGroupActivity.class);
-        intent.putExtra("NameGroup", name);
-        intent.putExtra("idGroup", ""+id);
-        startActivity(intent);
-        //idGroup = id;
-        //nameGroup = name;
-        //new RequestTask().execute("https://math123.ru/rest/index.php");
+    public void goToGroup(String name, int id, int idLess) {
+//        Intent intent = new Intent(this, StudentsInGroupActivity.class);
+//        intent.putExtra("NameGroup", name);
+//        intent.putExtra("idGroup", ""+id);
+//        startActivity(intent);
+        this.idGroup = id;
+        this.idLess  = idLess;
+        this.nameGroup = name;
+        new RequestTask().execute("https://math123.ru/rest/index.php");
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -247,11 +249,17 @@ public class SelectGroupActivity extends AppCompatActivity {
                 //будем передавать два параметра
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
                 //передаем параметры из наших текстбоксов
-                //лоигн
-                nameValuePairs.add(new BasicNameValuePair("getGroupUsers", ""+idGroup));
-                //пароль
-                nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
+                //маршрут
+                nameValuePairs.add(new BasicNameValuePair("route", "getUsers"));
+                //айди группы
+                nameValuePairs.add(new BasicNameValuePair("id_group", ""+idGroup));
+                //айди урока
                 nameValuePairs.add(new BasicNameValuePair("id_less", ""+idLess));
+                //КлючПроверки
+                nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
+                //Логин + Пароль
+                nameValuePairs.add(new BasicNameValuePair("loginPass", Global.LOGIN+Global.PASS));
+
                 //собераем их вместе и посылаем на сервер
                 postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 //получаем ответ от сервера
@@ -260,6 +268,9 @@ public class SelectGroupActivity extends AppCompatActivity {
                 Intent intent = new Intent(SelectGroupActivity.this, StudentsInGroupActivity.class);
                 //то что куда мы будем передавать и что, putExtra(куда, что);
                 intent.putExtra(StudentsInGroupActivity.JsonURL, response);
+                intent.putExtra("idGroup", ""+idGroup);
+                intent.putExtra("idLess", ""+idLess);
+                intent.putExtra("nameGroup", nameGroup);
                 startActivity(intent);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();

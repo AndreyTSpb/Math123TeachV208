@@ -18,13 +18,16 @@ import java.util.HashMap;
 
 public class StudentsInGroupActivity extends AppCompatActivity {
 
-    private String nameGroup;
-    private int idGroup;
+    public static String nameGroup;
+    public static int idGroup;
+    public static int idLess;
     private ArrayList<SelectStudents> selectStudents;
     private SelectStudentsAdapter adapter;
     public HashMap<String, Object> hm;
     public static String JsonURL;
     private String error;
+    private JSONArray arrStudents;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +48,10 @@ public class StudentsInGroupActivity extends AppCompatActivity {
         //превращаем в тип стринг для парсинга
         assert extras != null;
         String json = extras.getString(JsonURL);
+        System.out.println("test1-jsonurl" + JsonURL);
         //передаем в метод парсинга
-        if (!JSONURL(json)) {
-            //String error = "Произошла ошибка";
+        if (!JSONURL1(json)) {
+            String error = "Произошла ошибка  json-null";
             Intent intent = new Intent(this, LoginActivity.class);
             intent.putExtra("error", error);
             System.out.println("test-error" + error);
@@ -55,8 +59,9 @@ public class StudentsInGroupActivity extends AppCompatActivity {
         }
 
         Intent intent = getIntent();
-        nameGroup = intent.getStringExtra("NameGroup").toString();
-        //idGroup = Integer.parseInt(intent.getStringExtra("idGroup").toString());
+        nameGroup = intent.getStringExtra("nameGroup");
+        idGroup = Integer.parseInt(intent.getStringExtra("idGroup"));
+        idLess = Integer.parseInt(intent.getStringExtra("idLess"));
         System.out.println("testtest"+nameGroup);
         TextView ng = findViewById(R.id.nameGroup);
         ng.setText(nameGroup);
@@ -65,8 +70,13 @@ public class StudentsInGroupActivity extends AppCompatActivity {
          * вЫВОД списка групп где есть текущая дата
          */
         selectStudents = new ArrayList<>();
-        for(int i=1; i<9; i++){
-            selectStudents.add(new SelectStudents("Ученик № "+i, i, 1,1));
+
+        for(int i=1; i<arrStudents.length(); i++){
+            try {
+                selectStudents.add(new SelectStudents(arrStudents.getJSONObject(i).getString("nameStud"), Integer.parseInt(arrStudents.getJSONObject(i).getString("idStud")),1,1));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         ListView listStuds = findViewById(R.id.listStuds);
@@ -103,29 +113,26 @@ public class StudentsInGroupActivity extends AppCompatActivity {
     }
 
     /** @param result */
-    public boolean JSONURL(String result){
+    public boolean JSONURL1(String result){
         try{
-            System.out.println("json_test"+ result);
+            System.out.println("test1-json"+ result);
             //создали читателя json объектов и отдали ему строку - result
             JSONObject json  = new JSONObject(result);
             //дальше находим вход в наш json им является ключевое слово data
             JSONArray urls = json.getJSONArray("data");
-            System.out.println("test-g"+urls);
+            System.out.println("test1-g"+urls);
             /*Проверяем есть ли данные*/
-            System.out.println("test-mass"+urls.getJSONObject(0).getString("error"));
+            System.out.println("test1-mass"+urls.getJSONObject(0).getString("error"));
             if(urls.getJSONObject(0).getString("error").equals("FALSE")) {
-
-                Global.ID_TEACH   = urls.getJSONObject(1).getInt("idTeach");
-                Global.NAME_TEACH = urls.getJSONObject(1).getString("nameTeach");
-                Global.HESH_KEY   = urls.getJSONObject(1).getString("heshKey");
-
+                arrStudents = urls.getJSONObject(1).getJSONArray("students");
+                System.out.println("eror1-arr" + arrStudents);
                 return true;
             }else{
-                System.out.print("test-err"+urls.getJSONObject(1).getString("errorText"));
+                System.out.print("test1-err"+urls.getJSONObject(1).getString("errorText"));
                 String error = urls.getJSONObject(1).getString("errorText");
                 Intent intent = new Intent(this, LoginActivity.class);
                 intent.putExtra("error", error);
-                System.out.println("test-error"+error);
+                System.out.println("test1-error"+error);
                 startActivity(intent);
                 return false;
             }
