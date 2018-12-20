@@ -44,7 +44,7 @@ public class SelectGroupActivity extends AppCompatActivity {
     private SelectGroupsAdapter adapter;
     public HashMap<String, Object> hm;
     public static String JsonURL;
-    private String error;
+    public String error;
     private JSONArray arrGroups;
     public int idGroup;
     public int idLess;
@@ -103,29 +103,32 @@ public class SelectGroupActivity extends AppCompatActivity {
         String json = extras.getString(JsonURL);
         //передаем в метод парсинга
         if (!JSONURL(json)) {
-            String error = "Произошла ошибка json-null";
-            Intent intent = new Intent(this, LoginActivity.class);
+            if(error.isEmpty()) {
+                error = "Произошла ошибка";
+            }
+            Intent intent = new Intent(SelectGroupActivity.this, LoginActivity.class);
             intent.putExtra("error", error);
             System.out.println("test-error" + error);
             startActivity(intent);
-        }
+        }else {
 
-        /**
-         * вЫВОД списка групп где есть текущая дата
-         */
+            /**
+             * вЫВОД списка групп где есть текущая дата
+             */
 
-        selectGroups = new ArrayList<>();
-        for (int i = 0; i < arrGroups.length(); i++) {
-            try {
-                selectGroups.add(new SelectGroups(arrGroups.getJSONObject(i).getString("nameGroup"), arrGroups.getJSONObject(i).getString("idGroup") , arrGroups.getJSONObject(i).getString("id_less")));
-            } catch (JSONException e) {
-                e.printStackTrace();
+            selectGroups = new ArrayList<>();
+            for (int i = 0; i < arrGroups.length(); i++) {
+                try {
+                    selectGroups.add(new SelectGroups(arrGroups.getJSONObject(i).getString("nameGroup"), arrGroups.getJSONObject(i).getString("idGroup"), arrGroups.getJSONObject(i).getString("id_less")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-        }
 
-        ListView listGroup = findViewById(R.id.listGroup);
-        adapter = new SelectGroupsAdapter(this, R.layout.items_select_groups, selectGroups);
-        listGroup.setAdapter(adapter);
+            ListView listGroup = findViewById(R.id.listGroup);
+            adapter = new SelectGroupsAdapter(this, R.layout.items_select_groups, selectGroups);
+            listGroup.setAdapter(adapter);
+        }
     }
 
     private void setTextView() {
@@ -219,12 +222,8 @@ public class SelectGroupActivity extends AppCompatActivity {
                 System.out.println("eror-arr" + arrGroups);
                 return true;
             } else {
-                System.out.print("test-err" + urls.getJSONObject(1).getString("errorText"));
+                //System.out.print("test-err" + urls.getJSONObject(1).getString("errorText"));
                 error = urls.getJSONObject(1).getString("errorText");
-                Intent intent = new Intent(this, LoginActivity.class);
-                intent.putExtra("error", error);
-                System.out.println("test-error" + error);
-                startActivity(intent);
                 return false;
             }
         } catch (JSONException e) {

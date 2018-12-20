@@ -51,37 +51,38 @@ public class StudentsInGroupActivity extends AppCompatActivity {
         System.out.println("test1-jsonurl" + JsonURL);
         //передаем в метод парсинга
         if (!JSONURL1(json)) {
-            String error = "Произошла ошибка  json-null";
+            if(error.isEmpty()){error = "Произошла ошибка  json-null";}
             Intent intent = new Intent(this, LoginActivity.class);
             intent.putExtra("error", error);
             System.out.println("test-error" + error);
             startActivity(intent);
-        }
+        }else {
 
-        Intent intent = getIntent();
-        nameGroup = intent.getStringExtra("nameGroup");
-        idGroup = Integer.parseInt(intent.getStringExtra("idGroup"));
-        idLess = Integer.parseInt(intent.getStringExtra("idLess"));
-        System.out.println("testtest"+nameGroup);
-        TextView ng = findViewById(R.id.nameGroup);
-        ng.setText(nameGroup);
+            Intent intent = getIntent();
+            nameGroup = intent.getStringExtra("nameGroup");
+            idGroup = Integer.parseInt(intent.getStringExtra("idGroup"));
+            idLess = Integer.parseInt(intent.getStringExtra("idLess"));
+            System.out.println("testtest" + nameGroup);
+            TextView ng = findViewById(R.id.nameGroup);
+            ng.setText(nameGroup);
 
-        /**
-         * вЫВОД списка групп где есть текущая дата
-         */
-        selectStudents = new ArrayList<>();
+            /**
+             * вЫВОД списка групп где есть текущая дата
+             */
+            selectStudents = new ArrayList<>();
 
-        for(int i=1; i<arrStudents.length(); i++){
-            try {
-                selectStudents.add(new SelectStudents(arrStudents.getJSONObject(i).getString("nameStud"), Integer.parseInt(arrStudents.getJSONObject(i).getString("idStud")),1,1));
-            } catch (JSONException e) {
-                e.printStackTrace();
+            for (int i = 1; i < arrStudents.length(); i++) {
+                try {
+                    selectStudents.add(new SelectStudents(arrStudents.getJSONObject(i).getString("nameStud"), Integer.parseInt(arrStudents.getJSONObject(i).getString("idStud")), 1, 1));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-        }
 
-        ListView listStuds = findViewById(R.id.listStuds);
-        adapter = new SelectStudentsAdapter(this, R.layout.items_select_students, selectStudents);
-        listStuds.setAdapter(adapter);
+            ListView listStuds = findViewById(R.id.listStuds);
+            adapter = new SelectStudentsAdapter(this, R.layout.items_select_students, selectStudents);
+            listStuds.setAdapter(adapter);
+        }
     }
 
     /**
@@ -129,11 +130,7 @@ public class StudentsInGroupActivity extends AppCompatActivity {
                 return true;
             }else{
                 System.out.print("test1-err"+urls.getJSONObject(1).getString("errorText"));
-                String error = urls.getJSONObject(1).getString("errorText");
-                Intent intent = new Intent(this, LoginActivity.class);
-                intent.putExtra("error", error);
-                System.out.println("test1-error"+error);
-                startActivity(intent);
+                error = urls.getJSONObject(1).getString("errorText");
                 return false;
             }
         } catch (JSONException e) {
