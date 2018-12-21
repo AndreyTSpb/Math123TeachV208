@@ -41,6 +41,9 @@ public class SelectStudentsAdapter extends ArrayAdapter<SelectStudents>{
 
         final SelectStudents ss = selectStudents.get(position);
         viewHolder.nameStud.setText(ss.getName());
+        if(ss.getPas() == 1){
+            viewHolder.checkBoxPas.setChecked(true);
+        }
         /*Нажатие по названию группы*/
         viewHolder.nameStud.setOnClickListener(new View.OnClickListener() {
             @Override

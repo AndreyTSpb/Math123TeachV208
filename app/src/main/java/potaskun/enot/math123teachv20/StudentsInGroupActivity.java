@@ -71,9 +71,9 @@ public class StudentsInGroupActivity extends AppCompatActivity {
              */
             selectStudents = new ArrayList<>();
 
-            for (int i = 1; i < arrStudents.length(); i++) {
+            for (int i = 0; i < arrStudents.length(); i++) {
                 try {
-                    selectStudents.add(new SelectStudents(arrStudents.getJSONObject(i).getString("nameStud"), Integer.parseInt(arrStudents.getJSONObject(i).getString("idStud")), 1, 1));
+                    selectStudents.add(new SelectStudents(arrStudents.getJSONObject(i).getString("nameStud"), Integer.parseInt(arrStudents.getJSONObject(i).getString("idStud")), Integer.parseInt(arrStudents.getJSONObject(i).getString("pas")), 1));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -126,7 +126,7 @@ public class StudentsInGroupActivity extends AppCompatActivity {
             System.out.println("test1-mass"+urls.getJSONObject(0).getString("error"));
             if(urls.getJSONObject(0).getString("error").equals("FALSE")) {
                 arrStudents = urls.getJSONObject(1).getJSONArray("students");
-                System.out.println("eror1-arr" + arrStudents);
+                System.out.println("test1-eror1-arr" + arrStudents);
                 return true;
             }else{
                 System.out.print("test1-err"+urls.getJSONObject(1).getString("errorText"));

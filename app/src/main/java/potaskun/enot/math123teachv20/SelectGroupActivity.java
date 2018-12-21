@@ -219,7 +219,7 @@ public class SelectGroupActivity extends AppCompatActivity {
                  * [{"idGroup":"785","nameGroup":"ММ3-Лимпик-2 (Чт-17:55)","subject":"1","id_less":"109551"},]
                  */
                 arrGroups = urls.getJSONObject(1).getJSONArray("groups");
-                System.out.println("eror-arr" + arrGroups);
+                System.out.println("test-eror-arr" + arrGroups);
                 return true;
             } else {
                 //System.out.print("test-err" + urls.getJSONObject(1).getString("errorText"));
@@ -258,11 +258,13 @@ public class SelectGroupActivity extends AppCompatActivity {
                 nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
                 //Логин + Пароль
                 nameValuePairs.add(new BasicNameValuePair("loginPass", Global.LOGIN+Global.PASS));
-
+                System.out.println("test nameValuePairs"+nameValuePairs);
                 //собераем их вместе и посылаем на сервер
                 postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 //получаем ответ от сервера
+                System.out.println("test-postMetod"+postMethod);
                 String response = hc.execute(postMethod, res);
+                System.out.println("test-respons"+response);
                 //посылаем на вторую активность полученные параметры
                 Intent intent = new Intent(SelectGroupActivity.this, StudentsInGroupActivity.class);
                 //то что куда мы будем передавать и что, putExtra(куда, что);
