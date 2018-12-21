@@ -367,6 +367,8 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
             return null;
         }
@@ -389,9 +391,20 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
         }
     }
 
-    public Boolean checkStud(String json){
-
-        return false;
+    /**
+     * Проверяем результат true или false
+     * @param json
+     * @return
+     * @throws JSONException
+     */
+    public Boolean checkStud(String json) throws JSONException {
+            System.out.println("test3-json-checkStud "+json);
+            JSONObject json2 = new JSONObject(json);
+            //дальше находим вход в наш json им является ключевое слово data
+            JSONArray urls = json2.getJSONArray("data");
+            System.out.println("test3-urls" + urls);
+            String acs = urls.getJSONObject(0).getString("acs");
+        return acs.equals("TRUE");
     }
 
 }
