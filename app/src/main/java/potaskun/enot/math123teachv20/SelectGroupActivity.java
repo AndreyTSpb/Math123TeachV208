@@ -146,8 +146,8 @@ public class SelectGroupActivity extends AppCompatActivity {
     public void goQrCode(String name, int id, int idLess) {
         Intent intent = new Intent(this, QrCodeScannerActivity.class);
         intent.putExtra("NameGroup", name);
-        intent.putExtra("idGroup", id);
-        intent.putExtra("idLess", idLess);
+        intent.putExtra("idGroup", ""+id);
+        intent.putExtra("idLess", ""+idLess);
         startActivity(intent);
     }
 

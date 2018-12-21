@@ -1,6 +1,8 @@
 package potaskun.enot.math123teachv20;
 
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -10,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -19,6 +20,25 @@ import android.widget.Toast;
 
 
 import com.google.zxing.Result;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import static android.Manifest.permission.CAMERA;
 
@@ -26,6 +46,14 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
 
     private static final int REQUEST_CAMERA = 1;
     private ZXingScannerView mScannerView;
+    public String idGroup;
+    public String idLess;
+    public String nameGroup;
+    private ProgressDialog dialog;
+    private String nameStud;
+    private String idStud;
+    public Boolean ans;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +75,10 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
                 requestPermission();
             }
         }
+        Intent intent = getIntent();
+        idGroup = intent.getStringExtra("idGroup");
+        idLess = intent.getStringExtra("idLess");
+        nameGroup = intent.getStringExtra("NameGroup");
     }
 
     private void requestPermission() {
@@ -122,17 +154,39 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
         builder.setNeutralButton("Закрыть", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent backAllGroup = new Intent(QrCodeScannerActivity.this, SelectGroupActivity.class);
-                startActivity(backAllGroup);
+                goToGroup();
             }
         });
         //обработка JSON
         String json = rawResult.getText();
+        System.out.println("test3-json" + json);
+
+        try {
+            JSONObject json2 = new JSONObject(json);
+            //дальше находим вход в наш json им является ключевое слово data
+            JSONArray urls = json2.getJSONArray("data");
+            System.out.println("test3-urls" + urls);
+            idStud = urls.getJSONObject(0).getString("idStud");
+            nameStud = urls.getJSONObject(0).getString("nameStud");
+            getTestStud();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
 
         //Строка с именем и то что все ок
-        String name = "Васько Суходрищев";
-        String pass = "Доступ разрешен";
-        builder.setMessage("Name: " + name + "\n" + "Accept: " + pass + "\n" +"REAL STRING:"+rawResult.getText());
+        String name = nameStud;
+        String pass = null;
+        if(ans) {
+            pass = "Доступ разрешен";
+        }else{
+            pass = "Доступ запрещен";
+        }
+        builder.setMessage("Имя: " + name + "\n" + "Доступ: " + pass + "\n" +"REAL STRING:"+rawResult.getText());
         AlertDialog alert1 = builder.create();
         alert1.show();
     }
@@ -181,6 +235,163 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * Переход в список учеников группы
+     *
+     */
+    public void goToGroup() {
+        new RequestTask().execute("https://math123.ru/rest/index.php");
+    }
+
+    /**
+     * Создаем запрос на получение списка учеников
+     */
+    class RequestTask extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... param) {
+            try {
+                //создаем запрос на сервер
+                DefaultHttpClient hc = new DefaultHttpClient();
+                ResponseHandler<String> res = new BasicResponseHandler();
+                //он у нас будет посылать post запрос
+                HttpPost postMethod = new HttpPost(param[0]);
+                //будем передавать два параметра
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                //передаем параметры из наших текстбоксов
+                //маршрут
+                nameValuePairs.add(new BasicNameValuePair("route", "getUsers"));
+                //айди группы
+                nameValuePairs.add(new BasicNameValuePair("id_group", ""+idGroup));
+                //айди урока
+                nameValuePairs.add(new BasicNameValuePair("id_less", ""+idLess));
+                //КлючПроверки
+                nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
+                //Логин + Пароль
+                nameValuePairs.add(new BasicNameValuePair("loginPass", Global.LOGIN+Global.PASS));
+                System.out.println("test nameValuePairs"+nameValuePairs);
+                //собераем их вместе и посылаем на сервер
+                postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                //получаем ответ от сервера
+                System.out.println("test-postMetod"+postMethod);
+                String response = hc.execute(postMethod, res);
+                System.out.println("test-respons"+response);
+                //посылаем на вторую активность полученные параметры
+                Intent intent = new Intent(QrCodeScannerActivity.this, StudentsInGroupActivity.class);
+                //то что куда мы будем передавать и что, putExtra(куда, что);
+                intent.putExtra(StudentsInGroupActivity.JsonURL, response);
+                intent.putExtra("idGroup", ""+idGroup);
+                intent.putExtra("idLess", ""+idLess);
+                intent.putExtra("nameGroup", nameGroup);
+                startActivity(intent);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+
+            dialog.dismiss();
+            super.onPostExecute(result);
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            dialog = new ProgressDialog(QrCodeScannerActivity.this);
+            dialog.setMessage("Загружаюсь...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+            super.onPreExecute();
+        }
+    }
+    /**
+     * Запрос на проверку разрешения на доступ ученику
+     */
+    public void getTestStud() throws ExecutionException, InterruptedException {
+        new RequestTaskTestUser().execute("https://math123.ru/rest/index.php").get();
+    }
+    /**
+     * Создаем запрос на получение списка учеников
+     */
+    class RequestTaskTestUser extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... param) {
+            try {
+                //создаем запрос на сервер
+                DefaultHttpClient hc = new DefaultHttpClient();
+                ResponseHandler<String> res = new BasicResponseHandler();
+                //он у нас будет посылать post запрос
+                HttpPost postMethod = new HttpPost(param[0]);
+                //будем передавать два параметра
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                //передаем параметры из наших текстбоксов
+                //маршрут
+                nameValuePairs.add(new BasicNameValuePair("route", "getTestQr"));
+                //айди группы
+                nameValuePairs.add(new BasicNameValuePair("id_group", ""+idGroup));
+                //айди урока
+                nameValuePairs.add(new BasicNameValuePair("id_less", ""+idLess));
+                //айди студента
+                nameValuePairs.add(new BasicNameValuePair("id_stud", ""+idStud));
+                //КлючПроверки
+                nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
+                //Логин + Пароль
+                nameValuePairs.add(new BasicNameValuePair("loginPass", Global.LOGIN+Global.PASS));
+                System.out.println("test3 nameValuePairs"+nameValuePairs);
+                //собераем их вместе и посылаем на сервер
+                postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                //получаем ответ от сервера
+                System.out.println("test3-postMetod"+postMethod);
+                String response = hc.execute(postMethod, res);
+                System.out.println("test3-respons"+response);
+                //посылаем на вторую активность полученные параметры
+                Intent intent = new Intent(QrCodeScannerActivity.this, QrCodeScannerActivity.class);
+                //то что куда мы будем передавать и что, putExtra(куда, что);
+                intent.putExtra(StudentsInGroupActivity.JsonURL, response);
+                intent.putExtra("idGroup", ""+idGroup);
+                intent.putExtra("idLess", ""+idLess);
+                intent.putExtra("nameGroup", nameGroup);
+                startActivity(intent);
+                ans = checkStud(response);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+
+            dialog.dismiss();
+            super.onPostExecute(result);
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            dialog = new ProgressDialog(QrCodeScannerActivity.this);
+            dialog.setMessage("Загружаюсь...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+            super.onPreExecute();
+        }
+    }
+
+    public Boolean checkStud(String json){
+
+        return false;
     }
 
 }
