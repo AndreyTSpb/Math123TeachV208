@@ -55,6 +55,8 @@ public class SelectGroupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_group);
+
+        clearGlobalDate();
         /*
          * Кнопка возврата
          */
@@ -131,6 +133,12 @@ public class SelectGroupActivity extends AppCompatActivity {
         }
     }
 
+    private void clearGlobalDate() {
+        Global.ID_GROUP ="";
+        Global.ID_LESS  = "";
+        Global.NAME_GROUP = "";
+    }
+
     private void setTextView() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
         Date d = new Date(calendar.getTimeInMillis());
@@ -165,6 +173,10 @@ public class SelectGroupActivity extends AppCompatActivity {
         this.idGroup = id;
         this.idLess  = idLess;
         this.nameGroup = name;
+        Global.ID_GROUP ="" + id;
+        Global.ID_LESS  = "" + idLess;
+        Global.NAME_GROUP = name;
+
         new RequestTask().execute("https://math123.ru/rest/index.php");
     }
 

@@ -38,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import static android.Manifest.permission.CAMERA;
@@ -52,7 +53,6 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
     private ProgressDialog dialog;
     private String nameStud;
     private String idStud;
-    public Boolean ans;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +64,7 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
         Log.e("onCreate", "onCreate");
         mScannerView = new ZXingScannerView(this);
         setContentView(mScannerView);
@@ -79,6 +80,10 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
         idGroup = intent.getStringExtra("idGroup");
         idLess = intent.getStringExtra("idLess");
         nameGroup = intent.getStringExtra("NameGroup");
+        Global.ID_GROUP   = idGroup;
+        Global.ID_LESS    = idLess;
+        Global.NAME_GROUP = nameGroup;
+
     }
 
     private void requestPermission() {
@@ -143,15 +148,21 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Результат сканирования");
         //Нажатие на кнопку Ок продолжить
-        builder.setPositiveButton("Продолжить", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Еще", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //отправить данные о том что ученик пришел
+                //Пересканировать
                 mScannerView.resumeCameraPreview(QrCodeScannerActivity.this);
             }
         });
-        //Переход впи нажатии кнопки визит
-        builder.setNeutralButton("Закрыть", new DialogInterface.OnClickListener() {
+        //Переход впи нажатии кнопки Проверить
+        builder.setNeutralButton("Проверить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                goToCartUser();
+            }
+        });
+        builder.setNegativeButton("Группа", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 goToGroup();
@@ -160,7 +171,7 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
         //обработка JSON
         String json = rawResult.getText();
         System.out.println("test3-json" + json);
-
+        String id_user = "";
         try {
             JSONObject json2 = new JSONObject(json);
             //дальше находим вход в наш json им является ключевое слово data
@@ -168,27 +179,23 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
             System.out.println("test3-urls" + urls);
             idStud = urls.getJSONObject(0).getString("idStud");
             nameStud = urls.getJSONObject(0).getString("nameStud");
-            getTestStud();
-
+            id_user = nameStud; //Для проверки есть ли данныее о пользователе
         } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
             e.printStackTrace();
         }
 
         //Строка с именем и то что все ок
-        String name = nameStud;
-        String pass = null;
-        if(ans) {
-            pass = "Доступ разрешен";
+        if (!id_user.isEmpty()){
+            String name = nameStud;
+            builder.setMessage("Имя: " + name + "\n" +"REAL STRING:"+rawResult.getText());
+            AlertDialog alert1 = builder.create();
+            alert1.show();
         }else{
-            pass = "Доступ запрещен";
+            builder.setMessage("Повторите сканироание!!!" + "\n" +"REAL STRING:"+rawResult.getText());
+            AlertDialog alert1 = builder.create();
+            alert1.show();
         }
-        builder.setMessage("Имя: " + name + "\n" + "Доступ: " + pass + "\n" +"REAL STRING:"+rawResult.getText());
-        AlertDialog alert1 = builder.create();
-        alert1.show();
+
     }
 
     @Override
@@ -312,16 +319,21 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
             super.onPreExecute();
         }
     }
+
     /**
-     * Запрос на проверку разрешения на доступ ученику
-     */
-    public void getTestStud() throws ExecutionException, InterruptedException {
-        new RequestTaskTestUser().execute("https://math123.ru/rest/index.php").get();
-    }
-    /**
-     * Создаем запрос на получение списка учеников
+     * Создаем запрос на получение данных об ученике
      */
     class RequestTaskTestUser extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = new ProgressDialog(QrCodeScannerActivity.this);
+            dialog.setMessage("Загружаюсь...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+        }
+
         @Override
         protected String doInBackground(String... param) {
             try {
@@ -352,59 +364,38 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
                 System.out.println("test3-postMetod"+postMethod);
                 String response = hc.execute(postMethod, res);
                 System.out.println("test3-respons"+response);
-                //посылаем на вторую активность полученные параметры
-                Intent intent = new Intent(QrCodeScannerActivity.this, QrCodeScannerActivity.class);
+
+                Intent intent = new Intent(QrCodeScannerActivity.this, CartUserActivity.class);
                 //то что куда мы будем передавать и что, putExtra(куда, что);
-                intent.putExtra(StudentsInGroupActivity.JsonURL, response);
-                intent.putExtra("idGroup", ""+idGroup);
-                intent.putExtra("idLess", ""+idLess);
-                intent.putExtra("nameGroup", nameGroup);
+                intent.putExtra(CartUserActivity.JsonURL, response);
+                intent.putExtra("idGroup", Global.ID_GROUP);
+                intent.putExtra("idLess", Global.ID_LESS);
+                intent.putExtra("nameGroup", Global.NAME_GROUP);
+                intent.putExtra("nameStud", nameStud);
+
                 startActivity(intent);
-                ans = checkStud(response);
+
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
             return null;
         }
         @Override
         protected void onPostExecute(String result) {
-
-            dialog.dismiss();
             super.onPostExecute(result);
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            dialog = new ProgressDialog(QrCodeScannerActivity.this);
-            dialog.setMessage("Загружаюсь...");
-            dialog.setIndeterminate(true);
-            dialog.setCancelable(true);
-            dialog.show();
-            super.onPreExecute();
+            dialog.dismiss();
         }
     }
+
 
     /**
-     * Проверяем результат true или false
-     * @param json
-     * @return
-     * @throws JSONException
+     * Переход к карточки ученика
      */
-    public Boolean checkStud(String json) throws JSONException {
-            System.out.println("test3-json-checkStud "+json);
-            JSONObject json2 = new JSONObject(json);
-            //дальше находим вход в наш json им является ключевое слово data
-            JSONArray urls = json2.getJSONArray("data");
-            System.out.println("test3-urls" + urls);
-            String acs = urls.getJSONObject(0).getString("acs");
-        return acs.equals("TRUE");
+    public void goToCartUser() {
+        new RequestTaskTestUser().execute("https://math123.ru/rest/index.php");
     }
-
 }
