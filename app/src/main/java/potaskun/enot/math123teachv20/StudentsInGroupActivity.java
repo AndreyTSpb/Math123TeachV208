@@ -1,20 +1,37 @@
 package potaskun.enot.math123teachv20;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class StudentsInGroupActivity extends AppCompatActivity {
 
@@ -27,7 +44,7 @@ public class StudentsInGroupActivity extends AppCompatActivity {
     public static String JsonURL;
     private String error;
     private JSONArray arrStudents;
-
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +84,7 @@ public class StudentsInGroupActivity extends AppCompatActivity {
             ng.setText(nameGroup);
 
             /**
-             * вЫВОД списка групп где есть текущая дата
+             * Вывод списка детей
              */
             selectStudents = new ArrayList<>();
 
@@ -83,6 +100,19 @@ public class StudentsInGroupActivity extends AppCompatActivity {
             adapter = new SelectStudentsAdapter(this, R.layout.items_select_students, selectStudents);
             listStuds.setAdapter(adapter);
         }
+    }
+
+    public void chekInUser(int idStud){
+        new RequestTaskChekInUser().execute("https://math123.ru/rest/index.php", ""+idStud);
+    }
+    public void showToast(int id) {
+        chekInUser(id);
+        //создаём и отображаем текстовое уведомление
+        Toast toast = Toast.makeText(getApplicationContext(),
+                "Пора покормить кота!"+id +" "+Global.ID_LESS,
+                Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 
     /**
@@ -139,4 +169,63 @@ public class StudentsInGroupActivity extends AppCompatActivity {
         }
         return false;
     }
+    class RequestTaskChekInUser extends AsyncTask<String, String, String> {
+
+        @Override
+        protected void onPreExecute() {
+
+            dialog = new ProgressDialog(StudentsInGroupActivity.this);
+            dialog.setMessage("Загружаюсь...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+            super.onPreExecute();
+        }
+        @Override
+        protected String doInBackground(String... strings) {
+            //создаем запрос на сервер
+            DefaultHttpClient hc = new DefaultHttpClient();
+            ResponseHandler<String> res = new BasicResponseHandler();
+            //он у нас будет посылать post запрос
+            HttpPost postMethod = new HttpPost(strings[0]);
+            String idStud = strings[1];
+            //будем передавать два параметра
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
+            //передаем параметры из наших текстбоксов
+            //маршрут
+            nameValuePairs.add(new BasicNameValuePair("route", "getTestQr"));
+            //айди группы
+            nameValuePairs.add(new BasicNameValuePair("id_group", ""+idGroup));
+            //айди урока
+            nameValuePairs.add(new BasicNameValuePair("id_less", ""+idLess));
+            //айди студента
+            nameValuePairs.add(new BasicNameValuePair("id_stud", ""+idStud));
+            //КлючПроверки
+            nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
+            //Логин + Пароль
+            nameValuePairs.add(new BasicNameValuePair("loginPass", Global.LOGIN+Global.PASS));
+            System.out.println("test5 nameValuePairs"+nameValuePairs);
+            //собераем их вместе и посылаем на сервер
+            try {
+                postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            //получаем ответ от сервера
+            System.out.println("test5-postMetod"+postMethod);
+            try {
+                String response = hc.execute(postMethod, res);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+
+            dialog.dismiss();
+            super.onPostExecute(result);
+        }
+    }
+
 }

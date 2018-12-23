@@ -20,4 +20,12 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:text="Был" />
+
+    <TextView
+        android:id="@+id/textIdStud"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/nameStud"
+        android:layout_alignParentTop="true"
+        android:textSize="6sp" />
 </RelativeLayout>

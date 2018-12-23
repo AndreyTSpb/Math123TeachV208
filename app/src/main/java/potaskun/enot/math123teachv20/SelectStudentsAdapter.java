@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -53,6 +54,16 @@ public class SelectStudentsAdapter extends ArrayAdapter<SelectStudents>{
                     int id = ss.getId();
                     ((StudentsInGroupActivity)mContext).goToBall(name, id);
                 }
+            }
+        });
+
+        /*Нажимаем на чекбокс*/
+        viewHolder.checkBoxPas.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                int id = ss.getId();
+
+                ((StudentsInGroupActivity)mContext).showToast(id);
             }
         });
         return convertView;
