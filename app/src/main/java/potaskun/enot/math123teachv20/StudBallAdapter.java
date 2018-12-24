@@ -40,8 +40,26 @@ public class StudBallAdapter extends ArrayAdapter<StudBall> {
         }
 
         final StudBall sb = studBalls.get(position);
-        viewHolder.quest.setText("Задача№ "+sb.getQuest());
+        viewHolder.quest.setText("Задача№ "+sb.getQuest() + " "+sb.getBall());
+        int ball = sb.getBall();
+        switch (ball){
+            case 0:
+                viewHolder.radioButton1.setChecked(true);
+                break;
+            case 1:
+                viewHolder.radioButton2.setChecked(true);
+                break;
+            case 2:
+                viewHolder.radioButton3.setChecked(true);
+                break;
+            case 3:
+                viewHolder.radioButton4.setChecked(true);
+                break;
+            default:
+                viewHolder.radioButton1.setChecked(true);
+        }
         /*Нажатие по названию группы*/
+
         return convertView;
     }
 
@@ -50,12 +68,14 @@ public class StudBallAdapter extends ArrayAdapter<StudBall> {
         final RadioButton radioButton1;
         final RadioButton radioButton2;
         final RadioButton radioButton3;
+        final RadioButton radioButton4;
 
         public ViewHolder(View view){
             quest    = view.findViewById(R.id.quest);
             radioButton1 = view.findViewById(R.id.radioButton1);
             radioButton2 = view.findViewById(R.id.radioButton2);
             radioButton3 = view.findViewById(R.id.radioButton3);
+            radioButton4 = view.findViewById(R.id.radioButton4);
         }
     }
 }

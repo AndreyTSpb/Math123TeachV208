@@ -17,7 +17,8 @@
         android:id="@+id/groupBall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/quest"
         android:orientation="horizontal">
 
         <RadioButton
@@ -25,7 +26,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
-
         <RadioButton
             android:id="@+id/radioButton2"
             android:layout_width="wrap_content"
@@ -34,6 +34,12 @@
 
         <RadioButton
             android:id="@+id/radioButton3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radioButton4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
