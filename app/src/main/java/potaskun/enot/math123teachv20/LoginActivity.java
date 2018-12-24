@@ -83,6 +83,7 @@ public class LoginActivity extends AppCompatActivity{
                 Intent intent = new Intent(LoginActivity.this, SelectGroupActivity.class);
                 //то что куда мы будем передавать и что, putExtra(куда, что);
                 intent.putExtra(SelectGroupActivity.JsonURL, response);
+                intent.putExtra("dataLess", "");
                 startActivity(intent);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();

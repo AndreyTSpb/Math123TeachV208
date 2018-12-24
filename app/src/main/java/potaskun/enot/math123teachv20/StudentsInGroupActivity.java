@@ -105,11 +105,11 @@ public class StudentsInGroupActivity extends AppCompatActivity {
     public void chekInUser(int idStud){
         new RequestTaskChekInUser().execute("https://math123.ru/rest/index.php", ""+idStud);
     }
-    public void showToast(int id) {
+    public void showToast(int id, String check) {
         chekInUser(id);
         //создаём и отображаем текстовое уведомление
         Toast toast = Toast.makeText(getApplicationContext(),
-                "Пора покормить кота!"+id +" "+Global.ID_LESS,
+                "Пора покормить кота!"+id +" "+Global.ID_LESS+" "+check,
                 Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();

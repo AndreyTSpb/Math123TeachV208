@@ -64,37 +64,6 @@ public class SelectGroupActivity extends AppCompatActivity {
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         /*Menu*/
-        /*
-        Текущяя дата
-         */
-        textDate = findViewById(R.id.textDate);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-        Date now = new Date(calendar.getTimeInMillis());
-        textDate.setText(sdf.format(now));
-
-        /**
-         * Выбор даты при нажатии на текущию
-         */
-        textDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                        calendar.set(Calendar.YEAR, year);
-                        calendar.set(Calendar.MONTH, month);
-                        calendar.set(Calendar.DAY_OF_MONTH, day);
-                        setTextView();
-                    }
-                };
-                DatePickerDialog dateDialog = new DatePickerDialog(SelectGroupActivity.this, dateSetListener,
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)
-                );
-                dateDialog.show();
-            }
-        });
         /**
          * Обработка ответа от сервера
          */
@@ -113,6 +82,44 @@ public class SelectGroupActivity extends AppCompatActivity {
             System.out.println("test-error" + error);
             startActivity(intent);
         }else {
+
+            /*
+                Текущяя дата
+            */
+            String dateNow = extras.getString("dataLess");
+            System.out.println("test-group-create" + json);
+            textDate = findViewById(R.id.textDate);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+            Date now = new Date(calendar.getTimeInMillis());
+
+            if(dateNow.isEmpty()){
+                textDate.setText(sdf.format(now));
+            }else {
+                textDate.setText(dateNow);
+            }
+            /**
+             * Выбор даты при нажатии на текущию
+             */
+            textDate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                            calendar.set(Calendar.YEAR, year);
+                            calendar.set(Calendar.MONTH, month);
+                            calendar.set(Calendar.DAY_OF_MONTH, day);
+                            setTextView();
+                        }
+                    };
+                    DatePickerDialog dateDialog = new DatePickerDialog(SelectGroupActivity.this, dateSetListener,
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                    );
+                    dateDialog.show();
+                }
+            });
 
             /**
              * вЫВОД списка групп где есть текущая дата
@@ -133,15 +140,26 @@ public class SelectGroupActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Очистка глобальных переменных для группы при загрузке списка всех групп
+     */
     private void clearGlobalDate() {
         Global.ID_GROUP ="";
         Global.ID_LESS  = "";
         Global.NAME_GROUP = "";
     }
 
+    /**
+     * Установка нужной даты
+     */
     private void setTextView() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
         Date d = new Date(calendar.getTimeInMillis());
+        String dt_less = sdf.format(d);
+        /**
+         * Передаем запрос на выборку данных по группе
+         */
+        new RequestTaskGetGroups().execute("https://math123.ru/rest/index.php", dt_less);
         textDate.setText(sdf.format(d));
     }
 
@@ -166,10 +184,6 @@ public class SelectGroupActivity extends AppCompatActivity {
      * @param id
      */
     public void goToGroup(String name, int id, int idLess) {
-//        Intent intent = new Intent(this, StudentsInGroupActivity.class);
-//        intent.putExtra("NameGroup", name);
-//        intent.putExtra("idGroup", ""+id);
-//        startActivity(intent);
         this.idGroup = id;
         this.idLess  = idLess;
         this.nameGroup = name;
@@ -208,7 +222,7 @@ public class SelectGroupActivity extends AppCompatActivity {
     }
 
     /**
-     * Обработка ответа сервера
+     * Обработка ответа сервера если произошло залогинивание
      *
      * @param result
      */
@@ -232,6 +246,40 @@ public class SelectGroupActivity extends AppCompatActivity {
                  */
                 arrGroups = urls.getJSONObject(1).getJSONArray("groups");
                 System.out.println("test-eror-arr" + arrGroups);
+                return true;
+            } else {
+                //System.out.print("test-err" + urls.getJSONObject(1).getString("errorText"));
+                error = urls.getJSONObject(1).getString("errorText");
+                return false;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("log_tag", "Error parsing data " + e.toString());
+        }
+        return false;
+    }
+
+    /**
+     * Обработка ответа сервера если изменили дату
+     *
+     * @param result
+     */
+    public boolean JSONURLGROUP(String result) {
+        try {
+            System.out.println("json_test" + result);
+            //создали читателя json объектов и отдали ему строку - result
+            JSONObject json = new JSONObject(result);
+            //дальше находим вход в наш json им является ключевое слово data
+            JSONArray urls = json.getJSONArray("data");
+            System.out.println("test-g" + urls);
+            /*Проверяем есть ли данные*/
+            System.out.println("test-mass" + urls.getJSONObject(0).getString("error"));
+            if (urls.getJSONObject(0).getString("error").equals("FALSE")) {
+                /*
+                 * [{"idGroup":"785","nameGroup":"ММ3-Лимпик-2 (Чт-17:55)","subject":"1","id_less":"109551"},]
+                 */
+                arrGroups = urls.getJSONObject(1).getJSONArray("groups");
+                System.out.println("test-groups" + arrGroups);
                 return true;
             } else {
                 //System.out.print("test-err" + urls.getJSONObject(1).getString("errorText"));
@@ -275,6 +323,7 @@ public class SelectGroupActivity extends AppCompatActivity {
                 postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 //получаем ответ от сервера
                 System.out.println("test-postMetod"+postMethod);
+
                 String response = hc.execute(postMethod, res);
                 System.out.println("test-respons"+response);
                 //посылаем на вторую активность полученные параметры
@@ -284,6 +333,75 @@ public class SelectGroupActivity extends AppCompatActivity {
                 intent.putExtra("idGroup", ""+idGroup);
                 intent.putExtra("idLess", ""+idLess);
                 intent.putExtra("nameGroup", nameGroup);
+                startActivity(intent);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+
+            dialog.dismiss();
+            super.onPostExecute(result);
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            dialog = new ProgressDialog(SelectGroupActivity.this);
+            dialog.setMessage("Загружаюсь...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+            super.onPreExecute();
+        }
+    }
+
+    /**
+     * Создаем запрос на получение списка групп по указанной дате
+     */
+    class RequestTaskGetGroups extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... param) {
+            try {
+                //создаем запрос на сервер
+                DefaultHttpClient hc = new DefaultHttpClient();
+                ResponseHandler<String> res = new BasicResponseHandler();
+                //он у нас будет посылать post запрос
+                HttpPost postMethod = new HttpPost(param[0]);
+                //получаем дату урока
+                String dtLess = param[1];
+                //будем передавать два параметра
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
+                //передаем параметры из наших текстбоксов
+                //маршрут
+                nameValuePairs.add(new BasicNameValuePair("route", "getGroups"));
+                //id препода
+                nameValuePairs.add(new BasicNameValuePair("id_teach", ""+Global.ID_TEACH));
+                nameValuePairs.add(new BasicNameValuePair("name_teach", ""+Global.NAME_TEACH));
+                //айди урока
+                nameValuePairs.add(new BasicNameValuePair("dt_less", dtLess));
+                //КлючПроверки
+                nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
+                //Логин + Пароль
+                nameValuePairs.add(new BasicNameValuePair("loginPass", Global.LOGIN+Global.PASS));
+                System.out.println("test nameValuePairs"+nameValuePairs);
+                //собераем их вместе и посылаем на сервер
+                postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                //получаем ответ от сервера
+                System.out.println("test-postMetod"+postMethod);
+                String response = hc.execute(postMethod, res);
+                System.out.println("test-respons"+response);
+                //посылаем на вторую активность полученные параметры
+                Intent intent = new Intent(SelectGroupActivity.this, SelectGroupActivity.class);
+                //то что куда мы будем передавать и что, putExtra(куда, что);
+                intent.putExtra(SelectGroupActivity.JsonURL, response);
+                intent.putExtra("dataLess", dtLess);
                 startActivity(intent);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
