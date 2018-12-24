@@ -63,7 +63,11 @@ public class SelectStudentsAdapter extends ArrayAdapter<SelectStudents>{
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 int id = ss.getId();
                 //String statusCheck = "";
-                Boolean check = viewHolder.checkBoxPas.isSelected();
+                Boolean check;
+                if (!viewHolder.checkBoxPas.isChecked()) check = false;
+                else {
+                    check = true;
+                }
                 String checkStatus = "";
                 if(check){
                     checkStatus = "1";

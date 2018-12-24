@@ -102,14 +102,14 @@ public class StudentsInGroupActivity extends AppCompatActivity {
         }
     }
 
-    public void chekInUser(int idStud){
-        new RequestTaskChekInUser().execute("https://math123.ru/rest/index.php", ""+idStud);
+    public void chekInUser(int idStud, String check){
+        new RequestTaskChekInUser().execute("https://math123.ru/rest/index.php", ""+idStud, check);
     }
     public void showToast(int id, String check) {
-        chekInUser(id);
+        chekInUser(id, check);
         //создаём и отображаем текстовое уведомление
         Toast toast = Toast.makeText(getApplicationContext(),
-                "Пора покормить кота!"+id +" "+Global.ID_LESS+" "+check,
+                "Отмечен",
                 Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
@@ -189,17 +189,20 @@ public class StudentsInGroupActivity extends AppCompatActivity {
             //он у нас будет посылать post запрос
             HttpPost postMethod = new HttpPost(strings[0]);
             String idStud = strings[1];
+            String check = strings[2];
             //будем передавать два параметра
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
             //передаем параметры из наших текстбоксов
             //маршрут
-            nameValuePairs.add(new BasicNameValuePair("route", "getTestQr"));
+            nameValuePairs.add(new BasicNameValuePair("route", "upDatePasUser"));
             //айди группы
             nameValuePairs.add(new BasicNameValuePair("id_group", ""+idGroup));
             //айди урока
             nameValuePairs.add(new BasicNameValuePair("id_less", ""+idLess));
             //айди студента
             nameValuePairs.add(new BasicNameValuePair("id_stud", ""+idStud));
+            // статус чекбокса 1 был , 2 небыл
+            nameValuePairs.add(new BasicNameValuePair("check", check));
             //КлючПроверки
             nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
             //Логин + Пароль
