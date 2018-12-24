@@ -62,7 +62,6 @@ public class SelectStudentsAdapter extends ArrayAdapter<SelectStudents>{
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 int id = ss.getId();
-
                 ((StudentsInGroupActivity)mContext).showToast(id);
             }
         });
