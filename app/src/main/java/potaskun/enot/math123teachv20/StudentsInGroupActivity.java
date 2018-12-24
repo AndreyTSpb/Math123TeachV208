@@ -134,13 +134,82 @@ public class StudentsInGroupActivity extends AppCompatActivity {
 
     /**
      * Переход к балам студента
+     * @id - id_stud
      */
 
     public void goToBall(String name, int id) {
-        Intent intent = new Intent(this, StudentBallsActivity.class);
-        intent.putExtra("NameStud", name);
-        //intent.putExtra("idGroup", ""+id);
-        startActivity(intent);
+        new RequestTaskBallUser().execute("https://math123.ru/rest/index.php", name, ""+id, ""+idGroup, ""+idLess);
+    }
+
+    /**
+     * Получаем данные об оценках пользователя
+     */
+    class RequestTaskBallUser extends AsyncTask<String, String, String>{
+        @Override
+        protected void onPreExecute() {
+
+            dialog = new ProgressDialog(StudentsInGroupActivity.this);
+            dialog.setMessage("Загружаюсь...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+            //создаем запрос на сервер
+            DefaultHttpClient hc = new DefaultHttpClient();
+            ResponseHandler<String> res = new BasicResponseHandler();
+            //он у нас будет посылать post запрос
+            HttpPost postMethod = new HttpPost(strings[0]);
+
+            String name    = strings[1];
+            String idStud  = strings[2];
+            String idGroup = strings[3];
+            String idLess  = strings[4];
+
+            //будем передавать два параметра
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
+            //передаем параметры из наших текстбоксов
+            //маршрут
+            nameValuePairs.add(new BasicNameValuePair("route", "getBallUser"));
+            //айди группы
+            nameValuePairs.add(new BasicNameValuePair("id_group", ""+idGroup));
+            //айди урока
+            nameValuePairs.add(new BasicNameValuePair("id_less", ""+idLess));
+            //айди студента
+            nameValuePairs.add(new BasicNameValuePair("id_stud", ""+idStud));
+            //КлючПроверки
+            nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
+            //Логин + Пароль
+            nameValuePairs.add(new BasicNameValuePair("loginPass", Global.LOGIN+Global.PASS));
+            System.out.println("test5 nameValuePairs"+nameValuePairs);
+            //собераем их вместе и посылаем на сервер
+            String response = hc.execute(postMethod, res);
+
+            postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            //получаем ответ от сервера
+            System.out.println("test5-postMetod"+postMethod);
+
+            Intent intent = new Intent(StudentsInGroupActivity.this, StudentBallsActivity.class);
+            intent.putExtra(StudentBallsActivity.JsonURL, response);
+            intent.putExtra("NameStud", name);
+            //intent.putExtra("idGroup", ""+id);
+            startActivity(intent);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            dialog.dismiss();
+            super.onPostExecute(result);
+        }
     }
 
     /** @param result */

@@ -4,9 +4,14 @@ import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -14,6 +19,8 @@ public class StudentBallsActivity extends AppCompatActivity {
 
     private ArrayList<StudBall> studBalls;
     private StudBallAdapter adapter;
+    public static String JsonURL;
+    public String error;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +32,27 @@ public class StudentBallsActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
-        Intent intent = getIntent();
+        /**
+         * Обработка ответа от сервера
+         */
+        //принимаем параметр который мы послылали в manActivity
+        Bundle extras = getIntent().getExtras();
+        //превращаем в тип стринг для парсинга
+        assert extras != null;
+        String json = extras.getString(JsonURL);
+        //передаем в метод парсинга
+        if (!JSONURL(json)) {
+            if(error.isEmpty()) {
+                error = "Произошла ошибка";
+            }
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra("error", error);
+            System.out.println("test-error" + error);
+            startActivity(intent);
+        }
 
         TextView nameStud = findViewById(R.id.nameStud);
-        nameStud.setText(intent.getStringExtra("NameStud"));
+        nameStud.setText(extras.getString("NameStud"));
 
         /**
          * вЫВОД списка групп где есть текущая дата
@@ -58,5 +82,34 @@ public class StudentBallsActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * Обработка ответа сервера если произошло залогинивание
+     *
+     * @param result
+     */
+    public boolean JSONURL(String result) {
+        try {
+            System.out.println("json_test" + result);
+            //создали читателя json объектов и отдали ему строку - result
+            JSONObject json = new JSONObject(result);
+            //дальше находим вход в наш json им является ключевое слово data
+            JSONArray urls = json.getJSONArray("data");
+            System.out.println("test-g" + urls);
+            /*Проверяем есть ли данные*/
+            System.out.println("test-mass" + urls.getJSONObject(0).getString("error"));
+            if (urls.getJSONObject(0).getString("error").equals("FALSE")) {
+                return true;
+            } else {
+                System.out.print("test-err" + urls.getJSONObject(1).getString("errorText"));
+                error = urls.getJSONObject(1).getString("errorText");
+                return false;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("log_tag", "Error parsing data " + e.toString());
+        }
+        return false;
     }
 }
