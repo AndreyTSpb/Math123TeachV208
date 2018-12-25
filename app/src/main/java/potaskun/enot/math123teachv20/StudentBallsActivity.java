@@ -85,24 +85,24 @@ public class StudentBallsActivity extends AppCompatActivity {
     }
 
     /**
-     * Обработка ответа сервера если произошло залогинивание
+     * Обработка ответа сервера c оценками
      *
      * @param result
      */
     public boolean JSONURL(String result) {
         try {
-            System.out.println("json_test" + result);
+            System.out.println("json_test6" + result);
             //создали читателя json объектов и отдали ему строку - result
             JSONObject json = new JSONObject(result);
             //дальше находим вход в наш json им является ключевое слово data
             JSONArray urls = json.getJSONArray("data");
-            System.out.println("test-g" + urls);
+            System.out.println("test6-g" + urls);
             /*Проверяем есть ли данные*/
-            System.out.println("test-mass" + urls.getJSONObject(0).getString("error"));
+            System.out.println("test6-mass" + urls.getJSONObject(0).getString("error"));
             if (urls.getJSONObject(0).getString("error").equals("FALSE")) {
                 return true;
             } else {
-                System.out.print("test-err" + urls.getJSONObject(1).getString("errorText"));
+                System.out.print("test6-err" + urls.getJSONObject(1).getString("errorText"));
                 error = urls.getJSONObject(1).getString("errorText");
                 return false;
             }

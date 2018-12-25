@@ -174,7 +174,7 @@ public class StudentsInGroupActivity extends AppCompatActivity {
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
             //передаем параметры из наших текстбоксов
             //маршрут
-            nameValuePairs.add(new BasicNameValuePair("route", "getBallUser"));
+            nameValuePairs.add(new BasicNameValuePair("route", "getBall"));
             //айди группы
             nameValuePairs.add(new BasicNameValuePair("id_group", ""+idGroup));
             //айди урока
@@ -187,16 +187,17 @@ public class StudentsInGroupActivity extends AppCompatActivity {
             nameValuePairs.add(new BasicNameValuePair("loginPass", Global.LOGIN+Global.PASS));
             System.out.println("test5 nameValuePairs"+nameValuePairs);
             //собераем их вместе и посылаем на сервер
-            String response = hc.execute(postMethod, res);
-
             postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            String response = hc.execute(postMethod, res);
             //получаем ответ от сервера
             System.out.println("test5-postMetod"+postMethod);
 
             Intent intent = new Intent(StudentsInGroupActivity.this, StudentBallsActivity.class);
             intent.putExtra(StudentBallsActivity.JsonURL, response);
             intent.putExtra("NameStud", name);
-            //intent.putExtra("idGroup", ""+id);
+            intent.putExtra("idStud", idStud);
+            intent.putExtra("idLess", idLess);
+            intent.putExtra("idGroup", ""+idGroup);
             startActivity(intent);
             } catch (IOException e) {
                 e.printStackTrace();

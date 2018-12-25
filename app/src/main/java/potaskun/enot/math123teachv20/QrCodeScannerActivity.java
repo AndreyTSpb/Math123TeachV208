@@ -343,7 +343,7 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
                 //он у нас будет посылать post запрос
                 HttpPost postMethod = new HttpPost(param[0]);
                 //будем передавать два параметра
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
                 //передаем параметры из наших текстбоксов
                 //маршрут
                 nameValuePairs.add(new BasicNameValuePair("route", "getTestQr"));
