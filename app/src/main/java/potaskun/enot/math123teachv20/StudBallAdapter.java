@@ -40,7 +40,8 @@ public class StudBallAdapter extends ArrayAdapter<StudBall> {
         }
 
         final StudBall sb = studBalls.get(position);
-        viewHolder.quest.setText("Задача№ "+sb.getQuest() + " "+sb.getBall());
+        int qu = sb.getQuest()+1;
+        viewHolder.quest.setText("Задача№ "+qu);
         String ball = sb.getBall();
         switch (ball){
             case "0":

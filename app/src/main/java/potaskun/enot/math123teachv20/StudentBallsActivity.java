@@ -120,4 +120,9 @@ public class StudentBallsActivity extends AppCompatActivity {
         }
         return false;
     }
+
+    /**
+     * Ставим отметки
+     */
+    
 }
