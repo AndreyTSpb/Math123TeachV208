@@ -100,6 +100,7 @@ public class StudentBallsActivity extends AppCompatActivity {
             /*Проверяем есть ли данные*/
             System.out.println("test6-mass" + urls.getJSONObject(0).getString("error"));
             if (urls.getJSONObject(0).getString("error").equals("FALSE")) {
+                //{"error":"FALSE"},{"kol_ball":"8"},{"subject":"1"},{"balls":["1","2","2","2","2","2","0","0"]},{"errorText":"Урок и Ученик не переданы"}
                 return true;
             } else {
                 System.out.print("test6-err" + urls.getJSONObject(1).getString("errorText"));
