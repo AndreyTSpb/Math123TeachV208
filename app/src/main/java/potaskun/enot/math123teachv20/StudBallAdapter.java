@@ -41,18 +41,18 @@ public class StudBallAdapter extends ArrayAdapter<StudBall> {
 
         final StudBall sb = studBalls.get(position);
         viewHolder.quest.setText("Задача№ "+sb.getQuest() + " "+sb.getBall());
-        int ball = sb.getBall();
+        String ball = sb.getBall();
         switch (ball){
-            case 0:
+            case "0":
                 viewHolder.radioButton1.setChecked(true);
                 break;
-            case 1:
+            case "1":
                 viewHolder.radioButton2.setChecked(true);
                 break;
-            case 2:
+            case "2":
                 viewHolder.radioButton3.setChecked(true);
                 break;
-            case 3:
+            case "3":
                 viewHolder.radioButton4.setChecked(true);
                 break;
             default:

@@ -21,6 +21,7 @@ public class StudentBallsActivity extends AppCompatActivity {
     private StudBallAdapter adapter;
     public static String JsonURL;
     public String error;
+    private JSONArray jsonBall;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +54,18 @@ public class StudentBallsActivity extends AppCompatActivity {
 
         TextView nameStud = findViewById(R.id.nameStud);
         nameStud.setText(extras.getString("NameStud"));
+        System.out.println("test-jsonBall" + jsonBall);
 
         /**
          * вЫВОД списка групп где есть текущая дата
          */
         studBalls = new ArrayList<>();
-        for(int i=1; i<9; i++){
-            studBalls.add(new StudBall(i, 1));
+        for(int i=0; i<jsonBall.length(); i++){
+            try {
+                studBalls.add(new StudBall(i, jsonBall.get(i).toString()));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         ListView listQuest = findViewById(R.id.listQuest);
@@ -101,6 +107,7 @@ public class StudentBallsActivity extends AppCompatActivity {
             System.out.println("test6-mass" + urls.getJSONObject(0).getString("error"));
             if (urls.getJSONObject(0).getString("error").equals("FALSE")) {
                 //{"error":"FALSE"},{"kol_ball":"8"},{"subject":"1"},{"balls":["1","2","2","2","2","2","0","0"]},{"errorText":"Урок и Ученик не переданы"}
+                jsonBall = urls.getJSONObject(3).getJSONArray("balls");
                 return true;
             } else {
                 System.out.print("test6-err" + urls.getJSONObject(1).getString("errorText"));

@@ -1,19 +1,21 @@
 package potaskun.enot.math123teachv20;
 
+import org.json.JSONObject;
+
 public class StudBall {
     private int quest;
-    private int ball;
+    private String ball;
 
-    public StudBall( int quest, int ball){
+    public StudBall(int quest, String ball){
         this.quest = quest;
         this.ball  = ball;
     }
 
-    public int getBall() {
+    public String getBall() {
         return ball;
     }
 
-    public void setBall(int ball) {
+    public void setBall(String ball) {
         this.ball = ball;
     }
 
