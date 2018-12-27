@@ -30,15 +30,11 @@ public class SelectStudentsAdapter extends ArrayAdapter<SelectStudents>{
 
     public View getView(int position, View convertView, ViewGroup parent){
         final ViewHolder viewHolder;
-        if (convertView == null) {
             //если вид нет то его создать
             convertView = lif.inflate(this.resource, parent, false);
             //Сохраняем предыдущее значение чтоб поновой не строилось
             viewHolder = new ViewHolder(convertView);
             convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
 
         final SelectStudents ss = selectStudents.get(position);
         viewHolder.nameStud.setText(ss.getName());
@@ -58,11 +54,10 @@ public class SelectStudentsAdapter extends ArrayAdapter<SelectStudents>{
         });
 
         /*Нажимаем на чекбокс*/
-        viewHolder.checkBoxPas.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        viewHolder.checkBoxPas.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            public void onClick(View view) {
                 int id = ss.getId();
-                //String statusCheck = "";
                 Boolean check;
                 if (!viewHolder.checkBoxPas.isChecked()) check = false;
                 else {

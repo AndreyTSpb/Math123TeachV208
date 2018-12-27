@@ -174,7 +174,7 @@ public class StudentBallsActivity extends AppCompatActivity {
                 String idLess  = strings[2];
                 String ball    = strings[3];
                 String quest   = strings[4];
-
+                System.out.println("test7 RequestTaskAddBall");
                 //будем передавать два параметра
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
                 //передаем параметры из наших текстбоксов

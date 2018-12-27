@@ -66,21 +66,31 @@ public class StudBallAdapter extends ArrayAdapter<StudBall> {
             @Override
             public void onClick(View v) {
                 String qu = (String) viewHolder.quest.getText();
-                RadioButton rb = (RadioButton)v;
-                switch (rb.getId()) {
-                    case R.id.radioButton1:
-                        ((StudentBallsActivity)mContext).addBall("0", qu);
-                        break;
-                    case R.id.radioButton2:
-                        ((StudentBallsActivity)mContext).addBall("1", qu);
-                        break;
-                    case R.id.radioButton3:
-                        ((StudentBallsActivity)mContext).addBall("2", qu);
-                        break;
-                    case R.id.radioButton4:
-                        ((StudentBallsActivity)mContext).addBall("3", qu);
-                        break;
-                }
+                ((StudentBallsActivity)mContext).addBall("0", qu);
+            }
+        });
+        RadioButton rb2 = viewHolder.radioButton2;
+        rb2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String qu = (String) viewHolder.quest.getText();
+                ((StudentBallsActivity)mContext).addBall("1", qu);
+            }
+        });
+        RadioButton rb3 = viewHolder.radioButton3;
+        rb3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String qu = (String) viewHolder.quest.getText();
+                ((StudentBallsActivity)mContext).addBall("2", qu);
+            }
+        });
+        RadioButton rb4 = viewHolder.radioButton4;
+        rb4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String qu = (String) viewHolder.quest.getText();
+                ((StudentBallsActivity)mContext).addBall("3", qu);
             }
         });
 
