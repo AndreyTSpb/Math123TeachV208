@@ -60,26 +60,7 @@ public class StudBallAdapter extends ArrayAdapter<StudBall> {
             default:
                 viewHolder.radioButton1.setChecked(true);
         }
-        /*Нажатие по названию группы*/
-//        viewHolder.radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                switch (checkedId){
-//                    case R.id.radioButton1:
-//                        ((StudentBallsActivity)mContext).addBall("0");
-//                        break;
-//                    case R.id.radioButton2:
-//                        ((StudentBallsActivity)mContext).addBall("1");
-//                        break;
-//                    case R.id.radioButton3:
-//                        ((StudentBallsActivity)mContext).addBall("2");
-//                        break;
-//                    case R.id.radioButton4:
-//                        ((StudentBallsActivity)mContext).addBall("3");
-//                        break;
-//                }
-//            }
-//        });
+
         RadioButton rb1 = viewHolder.radioButton1;
         rb1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,29 +87,6 @@ public class StudBallAdapter extends ArrayAdapter<StudBall> {
 
         return convertView;
     }
-
-    View.OnClickListener radioButtonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            TextView q = v.findViewById(R.id.quest);
-            String qu = q.getText().toString();
-            RadioButton rb = (RadioButton)v;
-            switch (rb.getId()) {
-                case R.id.radioButton1:
-                    ((StudentBallsActivity)mContext).addBall("0", qu);
-                    break;
-                case R.id.radioButton2:
-                    ((StudentBallsActivity)mContext).addBall("1", qu);
-                    break;
-                case R.id.radioButton3:
-                    ((StudentBallsActivity)mContext).addBall("2", qu);
-                    break;
-                case R.id.radioButton4:
-                    ((StudentBallsActivity)mContext).addBall("3", qu);
-                    break;
-            }
-        }
-    };
 
     private class ViewHolder{
         final TextView quest;
