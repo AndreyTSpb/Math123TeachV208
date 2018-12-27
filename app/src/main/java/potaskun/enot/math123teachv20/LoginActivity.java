@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity{
                 pass = findViewById(R.id.pass);
                 Global.LOGIN = login.getText().toString();
                 Global.PASS  = pass.getText().toString();
-                new RequestTask().execute("https://math123.ru/rest/index.php");
+                new RequestTask().execute("http://math123.ru/rest/index.php");
             }
         });
         /**
@@ -79,6 +79,7 @@ public class LoginActivity extends AppCompatActivity{
                 postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 //получаем ответ от сервера
                 String response = hc.execute(postMethod, res);
+                System.out.println("login"+response);
                 //посылаем на вторую активность полученные параметры
                 Intent intent = new Intent(LoginActivity.this, SelectGroupActivity.class);
                 //то что куда мы будем передавать и что, putExtra(куда, что);

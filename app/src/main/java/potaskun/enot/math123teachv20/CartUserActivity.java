@@ -176,7 +176,7 @@ public class CartUserActivity extends AppCompatActivity {
      *
      */
     public void goToGroup() {
-        new RequestTask().execute("https://math123.ru/rest/index.php");
+        new RequestTask().execute("http://math123.ru/rest/index.php");
     }
 
     /**

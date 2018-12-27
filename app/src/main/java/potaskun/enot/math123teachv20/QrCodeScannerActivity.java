@@ -249,7 +249,7 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
      *
      */
     public void goToGroup() {
-        new RequestTask().execute("https://math123.ru/rest/index.php");
+        new RequestTask().execute("http://math123.ru/rest/index.php");
     }
 
     /**
@@ -396,6 +396,6 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
      * Переход к карточки ученика
      */
     public void goToCartUser() {
-        new RequestTaskTestUser().execute("https://math123.ru/rest/index.php");
+        new RequestTaskTestUser().execute("http://math123.ru/rest/index.php");
     }
 }

@@ -159,7 +159,7 @@ public class SelectGroupActivity extends AppCompatActivity {
         /**
          * Передаем запрос на выборку данных по группе
          */
-        new RequestTaskGetGroups().execute("https://math123.ru/rest/index.php", dt_less);
+        new RequestTaskGetGroups().execute("http://math123.ru/rest/index.php", dt_less);
         textDate.setText(sdf.format(d));
     }
 
@@ -191,7 +191,7 @@ public class SelectGroupActivity extends AppCompatActivity {
         Global.ID_LESS  = "" + idLess;
         Global.NAME_GROUP = name;
 
-        new RequestTask().execute("https://math123.ru/rest/index.php");
+        new RequestTask().execute("http://math123.ru/rest/index.php");
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

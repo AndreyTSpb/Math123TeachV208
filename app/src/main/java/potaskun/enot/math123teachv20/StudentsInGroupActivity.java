@@ -103,7 +103,7 @@ public class StudentsInGroupActivity extends AppCompatActivity {
     }
 
     public void chekInUser(int idStud, String check){
-        new RequestTaskChekInUser().execute("https://math123.ru/rest/index.php", ""+idStud, check);
+        new RequestTaskChekInUser().execute("http://math123.ru/rest/index.php", ""+idStud, check);
     }
     public void showToast(int id, String check) {
         chekInUser(id, check);
@@ -138,7 +138,7 @@ public class StudentsInGroupActivity extends AppCompatActivity {
      */
 
     public void goToBall(String name, int id) {
-        new RequestTaskBallUser().execute("https://math123.ru/rest/index.php", name, ""+id, ""+idGroup, ""+idLess);
+        new RequestTaskBallUser().execute("http://math123.ru/rest/index.php", name, ""+id, ""+idGroup, ""+idLess);
     }
 
     /**

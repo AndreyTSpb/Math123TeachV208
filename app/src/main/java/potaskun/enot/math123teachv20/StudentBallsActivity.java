@@ -143,7 +143,7 @@ public class StudentBallsActivity extends AppCompatActivity {
      * Ставим отметки
      */
     public void addBall(String ball, String quest){
-        new RequestTaskAddBall().execute("https://math123.ru/rest/index.php", idStud, idLess, ball, quest);
+        new RequestTaskAddBall().execute("http://math123.ru/rest/index.php", idStud, idLess, ball, quest);
     }
 
     /**
