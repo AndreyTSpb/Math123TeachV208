@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -38,6 +39,7 @@ public class StudentsInGroupActivity extends AppCompatActivity {
     public static String nameGroup;
     public static int idGroup;
     public static int idLess;
+    public static String dt;
     private ArrayList<SelectStudents> selectStudents;
     private SelectStudentsAdapter adapter;
     public HashMap<String, Object> hm;
@@ -66,13 +68,11 @@ public class StudentsInGroupActivity extends AppCompatActivity {
         assert extras != null;
         String json = extras.getString(JsonURL);
         System.out.println("test1-jsonurl" + JsonURL);
+        dt = extras.getString("dataLess");
         //передаем в метод парсинга
         if (!JSONURL1(json)) {
             if(error.isEmpty()){error = "Произошла ошибка  json-null";}
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.putExtra("error", error);
-            System.out.println("test-error" + error);
-            startActivity(intent);
+            goToGroup(error);
         }else {
 
             Intent intent = getIntent();
@@ -99,6 +99,13 @@ public class StudentsInGroupActivity extends AppCompatActivity {
             ListView listStuds = findViewById(R.id.listStuds);
             adapter = new SelectStudentsAdapter(this, R.layout.items_select_students, selectStudents);
             listStuds.setAdapter(adapter);
+
+            /**Сообщение об ошибке*/
+            String error = intent.getStringExtra("error");
+            System.out.println("test-ererer"+error);
+            if (error != null) {
+                ToastError(error);
+            }
         }
     }
 
@@ -301,4 +308,94 @@ public class StudentsInGroupActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Обработка отображения ошибок
+     * @param error
+     */
+    public void ToastError (String error){
+        //создаём и отображаем текстовое уведомление
+        Toast toast = Toast.makeText(getApplicationContext(),
+                error,
+                Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
+
+    /**
+     * Если, происходит возврат на предыдущию страницу с выбором всех групп
+     */
+    public void goToGroup(String error) {
+
+        new RequestTaskGetGroups().execute("http://math123.ru/rest/index.php", dt, error);
+    }
+
+    /**
+     * Создаем запрос на получение списка групп по указанной дате
+     */
+    class RequestTaskGetGroups extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... param) {
+            try {
+                //создаем запрос на сервер
+                DefaultHttpClient hc = new DefaultHttpClient();
+                ResponseHandler<String> res = new BasicResponseHandler();
+                //он у нас будет посылать post запрос
+                HttpPost postMethod = new HttpPost(param[0]);
+                //получаем дату урока
+                String dtLess = param[1];
+                String error = param[2];
+                //будем передавать два параметра
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
+                //передаем параметры из наших текстбоксов
+                //маршрут
+                nameValuePairs.add(new BasicNameValuePair("route", "getGroups"));
+                //id препода
+                nameValuePairs.add(new BasicNameValuePair("id_teach", ""+Global.ID_TEACH));
+                nameValuePairs.add(new BasicNameValuePair("name_teach", ""+Global.NAME_TEACH));
+                nameValuePairs.add(new BasicNameValuePair("dt_less", dtLess));
+                //КлючПроверки
+                nameValuePairs.add(new BasicNameValuePair("hesh_key", Global.HESH_KEY));
+                //Логин + Пароль
+                nameValuePairs.add(new BasicNameValuePair("loginPass", Global.LOGIN+Global.PASS));
+                System.out.println("test nameValuePairs"+nameValuePairs);
+                //собераем их вместе и посылаем на сервер
+                postMethod.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                //получаем ответ от сервера
+                System.out.println("test-postMetod"+postMethod);
+                String response = hc.execute(postMethod, res);
+                System.out.println("test-respons"+response);
+                //посылаем на вторую активность полученные параметры
+                Intent intent = new Intent(StudentsInGroupActivity.this, SelectGroupActivity.class);
+                //то что куда мы будем передавать и что, putExtra(куда, что);
+                intent.putExtra(SelectGroupActivity.JsonURL, response);
+                intent.putExtra("dataLess", dtLess);
+                intent.putExtra("error", error);
+                startActivity(intent);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+
+            dialog.dismiss();
+            super.onPostExecute(result);
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            dialog = new ProgressDialog(StudentsInGroupActivity.this);
+            dialog.setMessage("Загружаюсь...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+            super.onPreExecute();
+        }
+    }
 }

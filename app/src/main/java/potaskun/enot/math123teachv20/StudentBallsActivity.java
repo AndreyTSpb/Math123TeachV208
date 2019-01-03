@@ -7,9 +7,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
@@ -65,30 +67,35 @@ public class StudentBallsActivity extends AppCompatActivity {
             intent.putExtra("error", error);
             System.out.println("test-error" + error);
             startActivity(intent);
-        }
+        }else {
 
-        TextView nameStud = findViewById(R.id.nameStud);
-        nameStud.setText(extras.getString("NameStud"));
-        idStud = extras.getString("idStud");
-        idLess = extras.getString("idLess");
-        System.out.println("test-jsonBall" + jsonBall);
+            TextView nameStud = findViewById(R.id.nameStud);
+            nameStud.setText(extras.getString("NameStud"));
+            idStud = extras.getString("idStud");
+            idLess = extras.getString("idLess");
+            System.out.println("test-jsonBall" + jsonBall);
 
 
-        /**
-         * вЫВОД списка групп где есть текущая дата
-         */
-        studBalls = new ArrayList<>();
-        for(int i=0; i<jsonBall.length(); i++){
-            try {
-                studBalls.add(new StudBall(i, jsonBall.get(i).toString()));
-            } catch (JSONException e) {
-                e.printStackTrace();
+            studBalls = new ArrayList<>();
+            for (int i = 0; i < jsonBall.length(); i++) {
+                try {
+                    studBalls.add(new StudBall(i, jsonBall.get(i).toString()));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            ListView listQuest = findViewById(R.id.listQuest);
+            adapter = new StudBallAdapter(this, R.layout.items_ball, studBalls);
+            listQuest.setAdapter(adapter);
+
+            /**Сообщение об ошибке*/
+            String error = extras.getString("error");
+            System.out.println("test-ererer"+error);
+            if (error != null) {
+                ToastError(error);
             }
         }
-
-        ListView listQuest = findViewById(R.id.listQuest);
-        adapter = new StudBallAdapter(this, R.layout.items_ball, studBalls);
-        listQuest.setAdapter(adapter);
     }
 
     /**
@@ -210,6 +217,19 @@ public class StudentBallsActivity extends AppCompatActivity {
             dialog.dismiss();
             super.onPostExecute(result);
         }
+    }
+
+    /**
+     * Обработка отображения ошибок
+     * @param error
+     */
+    public void ToastError (String error){
+        //создаём и отображаем текстовое уведомление
+        Toast toast = Toast.makeText(getApplicationContext(),
+                error,
+                Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 
 }

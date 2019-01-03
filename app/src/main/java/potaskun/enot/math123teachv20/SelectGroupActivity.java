@@ -84,7 +84,6 @@ public class SelectGroupActivity extends AppCompatActivity {
             System.out.println("test-error" + error);
             startActivity(intent);
         }else {
-
             /*
                 Текущяя дата
             */
@@ -139,6 +138,14 @@ public class SelectGroupActivity extends AppCompatActivity {
             ListView listGroup = findViewById(R.id.listGroup);
             adapter = new SelectGroupsAdapter(this, R.layout.items_select_groups, selectGroups);
             listGroup.setAdapter(adapter);
+
+            /**Сообщение об ошибке*/
+            Intent intent = getIntent();
+            String error = intent.getStringExtra("error");
+            System.out.println("test-ererer"+error);
+            if (error != null) {
+                ToastError(error);
+            }
         }
     }
 
@@ -186,6 +193,7 @@ public class SelectGroupActivity extends AppCompatActivity {
      * @param id
      */
     public void goToGroup(String name, int id, int idLess) {
+        String dt_less = textDate.getText().toString();
         this.idGroup = id;
         this.idLess  = idLess;
         this.nameGroup = name;
@@ -193,7 +201,7 @@ public class SelectGroupActivity extends AppCompatActivity {
         Global.ID_LESS  = "" + idLess;
         Global.NAME_GROUP = name;
 
-        new RequestTask().execute("http://math123.ru/rest/index.php");
+        new RequestTask().execute("http://math123.ru/rest/index.php", dt_less);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -335,6 +343,9 @@ public class SelectGroupActivity extends AppCompatActivity {
                 intent.putExtra("idGroup", ""+idGroup);
                 intent.putExtra("idLess", ""+idLess);
                 intent.putExtra("nameGroup", nameGroup);
+                //получаем дату урока
+                String dtLess = param[1];
+                intent.putExtra("dataLess", dtLess);
                 startActivity(intent);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -433,10 +444,14 @@ public class SelectGroupActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Обработка отображения ошибок
+     * @param error
+     */
     public void ToastError (String error){
         //создаём и отображаем текстовое уведомление
         Toast toast = Toast.makeText(getApplicationContext(),
-                "Пора покормить кота!",
+                error,
                 Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();

@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -83,6 +84,13 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
         Global.ID_GROUP   = idGroup;
         Global.ID_LESS    = idLess;
         Global.NAME_GROUP = nameGroup;
+
+        /**Сообщение об ошибке*/
+        String error = intent.getStringExtra("error");
+        System.out.println("test-ererer"+error);
+        if (error != null) {
+            ToastError(error);
+        }
 
     }
 
@@ -397,5 +405,18 @@ public class QrCodeScannerActivity extends AppCompatActivity implements ZXingSca
      */
     public void goToCartUser() {
         new RequestTaskTestUser().execute("http://math123.ru/rest/index.php");
+    }
+
+    /**
+     * Обработка отображения ошибок
+     * @param error
+     */
+    public void ToastError (String error){
+        //создаём и отображаем текстовое уведомление
+        Toast toast = Toast.makeText(getApplicationContext(),
+                error,
+                Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 }
