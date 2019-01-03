@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Math123TeachV2.1</string>
+    <string name="app_name">Math123TeachV3.0</string>
     <string name="head_login">Вход для Преподователя</string>
     <string name="select_date">Выбор даты: </string>
     <string name="head_groups">Выбор группы</string>
