@@ -13,31 +13,40 @@
     <!-- разрешение на работу с интернетом -->
     <application
         android:allowBackup="true"
+        android:icon="@drawable/avatar"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:icon="@drawable/avatar"
+        android:screenOrientation="portrait"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:screenOrientation="portrait">
-        <activity android:name=".LoginActivity" android:screenOrientation="portrait">
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".QrCodeScannerActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".SelectGroupActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".StudentsInGroupActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".StudentBallsActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".TestActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".CartUserActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".QrCodeScannerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SelectGroupActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".StudentsInGroupActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".StudentBallsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".TestActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".CartUserActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".SelectActionActivity"></activity>
     </application>
 
 </manifest>
